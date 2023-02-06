@@ -18,7 +18,27 @@ public sealed record CrabGame(Player Player1, Player Player2)
     }
 
     public bool GameIsOver => !(Player1.HeldCards.Any() && Player2.HeldCards.Any());
+
+    public bool Player1Won => GameIsOver && Player1.HeldCards.Any();
 };
 
 public sealed record Card(int Value);
-public sealed record Player(IImmutableQueue<Card> HeldCards);
+
+public sealed record Player(IImmutableQueue<Card> HeldCards)
+{
+    public override string ToString()
+    {
+        return string.Join(",", HeldCards.Select(card => card.Value.ToString()));
+    }
+
+    public override int GetHashCode()
+    {
+        return HeldCards.Aggregate(0x2D2816FE, (current, item) => current * 31 + (item.GetHashCode()));
+    }
+
+    public bool Equals(Player? other)
+    {
+        if (other is null) return false;
+        return HeldCards.SequenceEqual(other.HeldCards);
+    }
+};
